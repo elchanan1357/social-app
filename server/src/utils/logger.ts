@@ -1,3 +1,4 @@
+import { config } from '@/utils/config';
 import { format, transports, createLogger } from 'winston';
 const { combine, timestamp, printf, colorize, errors } = format;
 
@@ -6,7 +7,7 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
 });
 
 export const logger = createLogger({
-    level: 'info',
+    level: config.logLevel,
     format: combine(
         colorize(),
         timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
