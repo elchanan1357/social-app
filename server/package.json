@@ -14,7 +14,10 @@
     "build": "tsc",
     "run": "npx tsx",
     "start": "npx tsx src/app.ts",
-    "dev": "npx nodemon --exec tsx src/app.ts"
+    "dev": "npx nodemon --exec tsx src/app.ts",
+    "test": "vitest run",
+    "test:repo": "vitest run src/test/userRepo.test.ts",
+    "test:auth": "vitest run src/test/authService.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -35,6 +38,7 @@
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   }
 }

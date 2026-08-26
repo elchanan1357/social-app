@@ -4,7 +4,7 @@ import { config } from "@/utils/config";
 import { UserModel } from "@/types/model.type";
 import { logger } from "@/utils/logger";
 import { TokenPayload, AuthTokens } from "@/types/auto.type";
-import { UserRepository } from "@/repo/social-app-repo";
+import { UserRepository } from "@/repo/user.repo";
 
 export class AuthService {
     private static SALT_ROUNDS = 10;
