@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:3000/api/auth
+@accessToken = need_token
+
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "firstName": "Israel",
+  "lastName": "Israeli",
+  "email": "israel@example.com",
+  "password": "Password123!"
+}
+
+
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "israel@example.com",
+  "password": "Password123!"
+}
+
+
+POST {{baseUrl}}/refresh
+Content-Type: application/json
+
+
+POST {{baseUrl}}/logout
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json

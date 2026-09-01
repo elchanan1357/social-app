@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { mockUser, mockRegisterDto } from './mocks/userData';
 
-vi.mock('@/repo/social-app-repo');
+vi.mock('@/repo/user.repo');
 vi.mock('bcryptjs');
 
 describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
