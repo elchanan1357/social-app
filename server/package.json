@@ -1,0 +1,50 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "server of social app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elchanan1357/social-app.git"
+  },
+  "license": "ISC",
+  "author": "elhanan",
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "build": "tsc",
+    "run": "npx tsx",
+    "start": "npx tsx src/server.ts",
+    "dev": "npx nodemon --exec tsx src/server.ts",
+    "test": "vitest run",
+    "test:repo": "vitest run src/tests/userRepo.test.ts",
+    "test:auth": "vitest run src/tests/authService.test.ts",
+    "test:e2e": "vitest run src/tests/auth.e2e.test.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.3",
+    "winston": "^3.19.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.2.0",
+    "@types/supertest": "^7.2.1",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}
