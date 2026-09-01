@@ -5,6 +5,7 @@ import { UserModel } from "@/types/model.type";
 import { logger } from "@/utils/logger";
 import { TokenPayload, AuthTokens } from "@/types/auto.type";
 import { UserRepository } from "@/repo/user.repo";
+import { AppError } from "@/utils/appError";
 
 export class AuthService {
     private static SALT_ROUNDS = 10;
@@ -39,7 +40,7 @@ export class AuthService {
         try {
             const findUser = await UserRepository.findByEmail(userData.email!);
             if (findUser)
-                throw new Error("User with this email already exists");
+                throw new AppError('User with this email already exists', 400);
 
             const hashedPassword = await this.hashPassword(userData.password);
             const newUser = await UserRepository.create({
@@ -63,11 +64,11 @@ export class AuthService {
         try {
             const user = await UserRepository.findByEmailWithPassword(email);
             if (!user)
-                throw new Error("User not found");
+                throw new AppError('User not found', 400);
 
             const isMatch = await this.comparePasswords(password, user.passwordHash);
             if (!isMatch)
-                throw new Error("Invalid email or password");
+                throw new AppError('Invalid email or password', 401);
 
             const tokens = this.generateTokens({
                 userId: user._id.toString(),
@@ -87,11 +88,11 @@ export class AuthService {
             const decoded = jwt.verify(refreshToken, config.jwtRefreshSecret) as TokenPayload;
             const user = await UserRepository.findById(decoded.userId);
             if (!user)
-                throw new Error("User not found");
+                throw new AppError('User not found', 400);
 
             const tokenExists = user.refreshTokens.some(rt => rt.token === refreshToken);
             if (!tokenExists)
-                throw new Error("Invalid refresh token");
+                throw new AppError('Invalid or expired refresh token', 401);
 
             const { accessToken } = this.generateTokens({
                 userId: user._id.toString(),
