@@ -1,8 +1,8 @@
-import { Response, NextFunction} from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import {config} from '@/utils/config';
-import {AuthRequest, TokenPayload} from '@/types/auto.type';
-import {logger} from '@/utils/logger';
+import { config } from '@/utils/config';
+import { AuthRequest, TokenPayload } from '@/types/auto.type';
+import { logger } from '@/utils/logger';
 
 export const authTokenMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
