@@ -1,0 +1,5 @@
+export { IconFacebook } from './icon-facebook'
+export { IconGithub } from './icon-github'
+export { IconGmail } from './icon-gmail'
+export { IconWhatsapp } from './icon-whatsapp'
+export { IconGoogle } from './icon-google'
