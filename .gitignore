@@ -1,0 +1,37 @@
+# Dependencies (Root, Server & Client)
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+server/dist/
+client/dist/
+client/.tanstack/
+
+# Environment files
+.env
+.env.local
+*.local
+server/.env
+
+# Logs & Debug
+logs/
+server/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sw?
