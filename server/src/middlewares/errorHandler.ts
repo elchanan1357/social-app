@@ -9,10 +9,10 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof AppError) {
-    logger.warn(`[APP ERROR] ${err.statusCode} - ${err.message}`);
+    logger.warn(`[APP ERROR] ${req.method} ${req.originalUrl} - ${err.statusCode} - ${err.message}`);
     return res.status(err.statusCode).json({ message: err.message });
   }
 
-  logger.error(`[UNHANDLED ERROR] ${err.message}`, { stack: err.stack });
+  logger.error(`[UNHANDLED ERROR] ${req.method} ${req.originalUrl} - ${err.message}`, { stack: err.stack });
   return res.status(500).json({ message: 'Internal Server Error' });
 };

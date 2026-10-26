@@ -1,6 +1,7 @@
 @baseUrl = http://localhost:3000/api/auth
 @accessToken = need_token
 
+### Register
 POST {{baseUrl}}/register
 Content-Type: application/json
 
@@ -11,7 +12,9 @@ Content-Type: application/json
   "password": "Password123!"
 }
 
+###
 
+### Login
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -20,11 +23,15 @@ Content-Type: application/json
   "password": "Password123!"
 }
 
+###
 
+### Refresh
 POST {{baseUrl}}/refresh
 Content-Type: application/json
 
+###
 
+### Logout
 POST {{baseUrl}}/logout
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json

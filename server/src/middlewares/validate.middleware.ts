@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodType, ZodError } from 'zod';
+import { AppError } from '@/utils/appError'; 
 
 export const validate = (schema: ZodType) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -8,16 +9,8 @@ export const validate = (schema: ZodType) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const formattedErrors = error.issues.map((issue) => ({
-          field: issue.path.join('.'),
-          message: issue.message,
-        }));
-
-        res.status(400).json({
-          message: 'Validation failed',
-          errors: formattedErrors,
-        });
-        return;
+        const firstErrorMessage = error.issues[0]?.message || 'Validation failed';
+        return next(new AppError(firstErrorMessage, 400));
       }
       next(error);
     }
