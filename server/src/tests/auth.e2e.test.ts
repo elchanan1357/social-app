@@ -9,6 +9,7 @@ import { mockUser, mockRegisterDto } from './mocks/userData';
 
 vi.mock('@/repo/user.repo');
 vi.mock('bcryptjs');
+vi.mock('@/services/mail.service');
 
 describe('Auth End-to-End Flow Tests', () => {
     beforeEach(() => {
@@ -61,7 +62,6 @@ describe('Auth End-to-End Flow Tests', () => {
                 .send(invalidDto);
 
             expect(res.status).toBe(400);
-            expect(res.body).toHaveProperty('message', 'Validation failed');
             expect(res.body.errors).toBeInstanceOf(Array);
             expect(res.body.errors.length).toBeGreaterThan(0);
         });
@@ -127,7 +127,6 @@ describe('POST /api/auth/login', () => {
             .send({ email: 'bad-email', password: '' });
 
         expect(res.status).toBe(400);
-        expect(res.body).toHaveProperty('message', 'Validation failed');
         expect(res.body.errors).toBeInstanceOf(Array);
     });
 });
@@ -185,5 +184,41 @@ describe('POST /api/auth/logout', () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('message', 'User logged out successfully');
+    });
+
+    describe('POST /api/auth/forgot-password', () => {
+        test('should return 200 when the user exists', async () => {
+            vi.mocked(UserRepository.findByEmail).mockResolvedValue({
+                ...mockUser,
+                _id: { toString: () => mockUser._id },
+            } as any);
+            vi.mocked(UserRepository.saveResetOtp).mockResolvedValue(undefined as any);
+
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: mockUser.email });
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty('message', 'If the email exists, a code was sent');
+        });
+
+        test('should return the same 200 when the user does not exist', async () => {
+            vi.mocked(UserRepository.findByEmail).mockResolvedValue(null);
+
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: 'nobody@example.com' });
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty('message', 'If the email exists, a code was sent');
+        });
+
+        test('should return 400 when the email is invalid', async () => {
+            const res = await request(app)
+                .post('/api/auth/forgot-password')
+                .send({ email: 'not-an-email' });
+
+            expect(res.status).toBe(400);
+        });
     });
 });

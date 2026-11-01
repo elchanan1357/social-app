@@ -46,4 +46,11 @@ export class UserRepository {
             { new: true }
         );
     }
+
+    static async saveResetOtp(userId: string, otpHash: string, expiresAt: Date) {
+        await User.updateOne(
+            { _id: userId },
+            { $set: { resetOtpHash: otpHash, resetOtpExpiresAt: expiresAt } }
+        );
+    }
 }

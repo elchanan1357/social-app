@@ -52,7 +52,15 @@ const userSchema = new Schema<UserModel>(
                 token: { type: String, required: true },
                 createdAt: { type: Date, default: Date.now, expires: '7d' }
             }
-        ]
+        ],
+        resetOtpHash: {
+            type: String,
+            select: false,
+        },
+        resetOtpExpiresAt: {
+            type: Date,
+            select: false,
+        },
     },
     {
         timestamps: true,

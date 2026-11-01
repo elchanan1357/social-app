@@ -4,8 +4,11 @@ import { UserRepository } from '@/repo/user.repo';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { mockUser, mockRegisterDto } from './mocks/userData';
+import { sendOtpEmail } from '@/services/mail.service';
+import { config } from '@/utils/config';
 
 vi.mock('@/repo/user.repo');
+vi.mock('@/services/mail.service');
 vi.mock('bcryptjs');
 
 describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
@@ -101,4 +104,46 @@ describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
       expect(UserRepository.removeRefreshToken).toHaveBeenCalledWith('user_123', 'token_123');
     });
   });
+
+  describe('forgotPassword', () => {
+    test('should throw 404 if user does not exist', async () => {
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue(null);
+
+      await expect(AuthService.forgotPassword('nobody@example.com')).rejects.toThrow(
+        'This email is not registered'
+      );
+
+      expect(UserRepository.saveResetOtp).not.toHaveBeenCalled();
+      expect(sendOtpEmail).not.toHaveBeenCalled();
+    });
+
+    test('should save hashed otp and send the plain otp by email', async () => {
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue({
+        ...mockUser,
+        id: mockUser._id,
+      } as any);
+
+      await AuthService.forgotPassword(mockUser.email);
+
+      const [sentTo, sentOtp] = vi.mocked(sendOtpEmail).mock.calls[0];
+      const [savedUserId, savedHash, savedExpiry] = vi.mocked(UserRepository.saveResetOtp).mock.calls[0];
+
+      expect(sentTo).toBe(mockUser.email);
+      expect(sentOtp).toMatch(/^\d{6}$/);
+      expect(savedUserId).toBe(mockUser._id);
+      expect(savedHash).not.toBe(sentOtp);
+      expect(savedExpiry.getTime()).toBeGreaterThan(Date.now());
+    });
+
+    test('should propagate the error if sending the email fails', async () => {
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue({
+        ...mockUser,
+        id: mockUser._id,
+      } as any);
+      vi.mocked(sendOtpEmail).mockRejectedValueOnce(new Error('SMTP down'));
+
+      await expect(AuthService.forgotPassword(mockUser.email)).rejects.toThrow('SMTP down');
+    });
+  });
+
 });

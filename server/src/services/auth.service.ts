@@ -5,6 +5,8 @@ import { UserModel } from "@/types/model.type";
 import { TokenPayload, AuthTokens } from "@/types/auto.type";
 import { UserRepository } from "@/repo/user.repo";
 import { AppError } from "@/utils/appError";
+import crypto from 'crypto'
+import { sendOtpEmail } from './mail.service'
 
 export class AuthService {
     private static SALT_ROUNDS = 10;
@@ -65,6 +67,20 @@ export class AuthService {
 
         await UserRepository.addRefreshToken(user._id.toString(), tokens.refreshToken);
         return { user, tokens };
+    }
+
+    static async forgotPassword(email: string) {
+        const user = await UserRepository.findByEmail(email)
+
+        if (!user)
+            throw new AppError('This email is not registered. Please sign up first.', 404);
+
+        const otp = crypto.randomInt(100000, 999999).toString()
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex')
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+
+        await UserRepository.saveResetOtp(user.id, otpHash, expiresAt)
+        await sendOtpEmail(email, otp)
     }
 
     static async refresh(refreshToken: string) {

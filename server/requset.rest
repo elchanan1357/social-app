@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3000/api/auth
-@accessToken = need_token
+@accessToken = {{login.response.body.accessToken}}
 
 ### Register
 POST {{baseUrl}}/register
@@ -8,13 +8,14 @@ Content-Type: application/json
 {
   "firstName": "Israel",
   "lastName": "Israeli",
-  "email": "israel@example.com",
+  "email": "socialapp055369@gmail.com",
   "password": "Password123!"
 }
 
 ###
 
 ### Login
+# @name login
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -35,3 +36,23 @@ Content-Type: application/json
 POST {{baseUrl}}/logout
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
+
+###
+
+### Forgot password
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "socialapp055369@gmail.com"
+}
+
+###
+
+### Forgot password - unknown email (should return the same 200)
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nobody@example.com"
+}

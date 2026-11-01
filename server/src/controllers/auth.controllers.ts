@@ -64,6 +64,17 @@ export class AuthController {
         }
     }
 
+    static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+        logger.info(`[AUTH] Forgot password request received`);
+        try {
+            await AuthService.forgotPassword(req.body.email);
+            res.status(200).json({ message: 'A code was sent to your email' });
+        } catch (error) {
+            logger.error(`[AUTH] Failed to send OTP email: ${error}`);
+            next(error);
+        }
+    }
+
     static async refresh(req: AuthRequest, res: Response, next: NextFunction) {
         logger.info(`[AUTH] Refresh request received`);
         try {
