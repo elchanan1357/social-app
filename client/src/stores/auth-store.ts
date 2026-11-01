@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { getCookie, setCookie, removeCookie } from '@/lib/cookies'
-import { api } from '@/lib/api'
+import { authApi, type LoginPayload, type RegisterPayload } from '@/api/auth.api'
 
 const ACCESS_TOKEN = 'access_token'
 
@@ -16,8 +16,9 @@ interface AuthState {
     accessToken: string
     setUser: (user: AuthUser | null) => void
     setAccessToken: (accessToken: string) => void
-    login: (credentials: { email: string; password?: string }) => Promise<void>
-    register: (userData: { email: string; password?: string }) => Promise<void>
+    login: (credentials: LoginPayload) => Promise<void>
+    register: (userData: RegisterPayload) => Promise<void>
+    logout: () => Promise<void>
     resetAccessToken: () => void
     reset: () => void
   }
@@ -41,21 +42,27 @@ export const useAuthStore = create<AuthState>()((set, get) => {
 
 
       login: async (credentials) => {
-        const response = await api.post('/auth/login', credentials)
-        const { accessToken, user } = response.data
+        const { data } = await authApi.login(credentials)
 
-        get().auth.setAccessToken(accessToken)
-        get().auth.setUser(user)
+        get().auth.setAccessToken(data.accessToken)
+        get().auth.setUser(data.user)
       },
 
-
       register: async (userData) => {
-        const response = await api.post('/auth/register', userData)
-        console.log('Registration response:', response.data)  
-        const { accessToken, user } = response.data
+        const { data } = await authApi.register(userData)
 
-        get().auth.setAccessToken(accessToken)
-        get().auth.setUser(user)
+        get().auth.setAccessToken(data.accessToken)
+        get().auth.setUser(data.user)
+      },
+
+      logout: async () => {
+        try {
+          await authApi.logout()
+        } catch (error) {
+          console.error('Logout error on server:', error)
+        } finally {
+          get().auth.reset()
+        }
       },
 
       resetAccessToken: () =>
@@ -63,19 +70,6 @@ export const useAuthStore = create<AuthState>()((set, get) => {
           removeCookie(ACCESS_TOKEN)
           return { ...state, auth: { ...state.auth, accessToken: '' } }
         }),
-
-
-      logout: async () => {
-        try {
-
-          await api.post('/auth/logout')
-        } catch (error) {
-          console.error('Logout error on server:', error)
-        } finally {
-
-          get().auth.reset()
-        }
-      },
 
       reset: () =>
         set((state) => {
