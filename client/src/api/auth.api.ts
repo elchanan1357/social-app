@@ -17,4 +17,8 @@ export const authApi = {
   register: (data: RegisterPayload) => api.post('/auth/register', data),
   logout: () => api.post('/auth/logout'),
   forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
+  verifyOtp: (data: { email: string; code: string }) =>
+    api.post<{ status: string; resetToken: string }>('/auth/verify-otp', data),
+  resetPassword: (data: { resetToken: string; newPassword: string }) =>
+    api.post('/auth/reset-password', data),
 }
