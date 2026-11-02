@@ -5,6 +5,8 @@ import { UserModel } from "@/types/model.type";
 import { TokenPayload, AuthTokens } from "@/types/auto.type";
 import { UserRepository } from "@/repo/user.repo";
 import { AppError } from "@/utils/appError";
+import crypto from 'crypto'
+import { sendOtpEmail } from './mail.service'
 
 export class AuthService {
     private static SALT_ROUNDS = 10;
@@ -29,6 +31,11 @@ export class AuthService {
 
         return { accessToken, refreshToken };
     }
+
+    private static hashOtp(code: string): string {
+        return crypto.createHash('sha256').update(code).digest('hex');
+    }
+
 
     static async register(userData: Partial<UserModel> & { password: string }) {
         const findUser = await UserRepository.findByEmail(userData.email!);
@@ -65,6 +72,79 @@ export class AuthService {
 
         await UserRepository.addRefreshToken(user._id.toString(), tokens.refreshToken);
         return { user, tokens };
+    }
+
+    static async forgotPassword(email: string) {
+        const user = await UserRepository.findByEmail(email)
+
+        if (!user)
+            throw new AppError('This email is not registered. Please sign up first.', 404);
+
+        const otp = crypto.randomInt(100000, 999999).toString()
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex')
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+
+        await UserRepository.saveResetOtp(user.id, otpHash, expiresAt)
+        await sendOtpEmail(email, otp)
+    }
+
+    static async verifyOtp(email: string, code: string): Promise<string> {
+        const user = await UserRepository.findByEmailWithOtp(email);
+        if (!user || !user.resetOtpHash || !user.resetOtpExpiresAt) {
+            throw new AppError('Invalid or expired OTP code', 400);
+        }
+
+        const userId = user._id.toString();
+
+        if (new Date() > new Date(user.resetOtpExpiresAt)) {
+            await UserRepository.clearOtpData(userId);
+            throw new AppError('OTP code expired, please request a new one', 400);
+        }
+
+        if ((user.resetOtpAttempts || 0) >= 5) {
+            await UserRepository.clearOtpData(userId);
+            throw new AppError('Too many failed attempts. OTP code has been revoked', 429);
+        }
+
+        const incoming = Buffer.from(this.hashOtp(code), 'hex');
+        const stored = Buffer.from(user.resetOtpHash, 'hex');
+        const isMatch = incoming.length === stored.length && crypto.timingSafeEqual(incoming, stored);
+
+        if (!isMatch) {
+            const attempts = await UserRepository.incrementOtpAttempts(userId);
+            if (attempts >= 5) {
+                await UserRepository.clearOtpData(userId);
+                throw new AppError('Too many failed attempts. OTP code has been revoked', 429);
+            }
+            throw new AppError(`Invalid code. ${5 - attempts} attempts remaining`, 400);
+        }
+
+        return jwt.sign(
+            { sub: userId, email: user.email, purpose: 'password_reset' },
+            config.jwtResetSecret,
+            { expiresIn: config.jwtResetExpiresIn }
+        );
+    }
+
+    static async resetPassword(resetToken: string, newPassword: string): Promise<void> {
+        let payload: jwt.JwtPayload;
+        try {
+            payload = jwt.verify(resetToken, config.jwtResetSecret) as jwt.JwtPayload;
+        } catch {
+            throw new AppError('Invalid or expired reset token', 401);
+        }
+
+        if (payload.purpose !== 'password_reset' || !payload.sub || !payload.email) {
+            throw new AppError('Unauthorized token purpose', 403);
+        }
+
+        const user = await UserRepository.findByEmailWithOtp(payload.email);
+        if (!user || user._id.toString() !== payload.sub || !user.resetOtpHash) {
+            throw new AppError('Invalid or expired reset token', 401);
+        }
+
+        const passwordHash = await this.hashPassword(newPassword);
+        await UserRepository.updatePasswordAndClearSessions(payload.sub, passwordHash);
     }
 
     static async refresh(refreshToken: string) {

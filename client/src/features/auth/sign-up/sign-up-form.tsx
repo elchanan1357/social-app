@@ -221,7 +221,7 @@ export function SignUpForm({
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-      } as any)
+      })
 
       navigate({ to: '/404' })
     } catch (error) {
@@ -238,7 +238,7 @@ export function SignUpForm({
         className={cn('grid gap-3', className)}
         {...props}
       >
-        {/* שורה כפולה עבור שם פרטי ושם משפחה */}
+
         <div className='grid grid-cols-2 gap-2'>
           <FormField
             control={form.control}

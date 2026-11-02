@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:repo": "vitest run src/tests/userRepo.test.ts",
     "test:authService": "vitest run src/tests/authService.test.ts",
-    "test:auth": "vitest run src/tests/auth.test.ts",
+    "test:auth": "vitest run src/tests/auth.e2e.test.ts",
     "test:post": "vitest run src/tests/posts.test.ts"
   },
   "dependencies": {
@@ -28,8 +28,10 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.3",
+    "nodemailer": "^10.3.1",
     "winston": "^3.19.0",
     "zod": "^4.5.4"
   },
@@ -40,6 +42,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.2.0",
+    "@types/nodemailer": "^8.0.2",
     "@types/supertest": "^7.2.1",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",

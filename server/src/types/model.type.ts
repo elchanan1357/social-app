@@ -18,6 +18,9 @@ export interface UserModel extends Document {
   refreshTokens: { token: string; createdAt: Date }[];
   createdAt: Date;
   updatedAt: Date;
+  resetOtpHash?: string;
+  resetOtpExpiresAt?: Date;
+  resetOtpAttempts?: number;
 }
 
 export interface IComment {

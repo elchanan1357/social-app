@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* ייבוא פונט Heebo מ-Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
