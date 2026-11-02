@@ -45,7 +45,7 @@ export function ForgotPasswordForm({
       loading: 'Sending email...',
       success: () => {
         form.reset()
-        navigate({ to: '/otp' })
+        navigate({ to: '/otp', search: { email: data.email } })
         return `Code sent to ${data.email}`
       },
       error: (err) => {
