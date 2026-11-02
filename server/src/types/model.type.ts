@@ -20,6 +20,7 @@ export interface UserModel extends Document {
   updatedAt: Date;
   resetOtpHash?: string;
   resetOtpExpiresAt?: Date;
+  resetOtpAttempts?: number;
 }
 
 export interface IComment {

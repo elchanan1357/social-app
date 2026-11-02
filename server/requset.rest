@@ -40,6 +40,7 @@ Content-Type: application/json
 ###
 
 ### Forgot password
+#  @name forgotPassword
 POST {{baseUrl}}/forgot-password
 Content-Type: application/json
 
@@ -55,4 +56,27 @@ Content-Type: application/json
 
 {
   "email": "nobody@example.com"
+}
+
+###
+
+### Verify OTP
+# @name verify
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "socialapp055369@gmail.com",
+  "code": "206076"
+}
+
+###
+
+### Reset password
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "resetToken": "{{verify.response.body.resetToken}}",
+  "newPassword": "NewPassword123"
 }

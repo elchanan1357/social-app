@@ -75,6 +75,27 @@ export class AuthController {
         }
     }
 
+    
+    static async verifyOtp(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { email, code } = req.body;
+            const resetToken = await AuthService.verifyOtp(email, code);
+            res.status(200).json({ status: 'success', resetToken });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async resetPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { resetToken, newPassword } = req.body;
+            await AuthService.resetPassword(resetToken, newPassword);
+            res.status(200).json({ status: 'success', message: 'Password updated successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async refresh(req: AuthRequest, res: Response, next: NextFunction) {
         logger.info(`[AUTH] Refresh request received`);
         try {

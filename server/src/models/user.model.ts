@@ -61,6 +61,10 @@ const userSchema = new Schema<UserModel>(
             type: Date,
             select: false,
         },
+        resetOtpAttempts: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,
