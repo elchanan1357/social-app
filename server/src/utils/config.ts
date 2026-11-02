@@ -12,9 +12,11 @@ const envSchema = z.object({
   MONGO_URI: z.string().min(1).default('mongodb://localhost:27017/social_app'),
 
   JWT_SECRET: z.string().min(1),
+  JWT_RESET_SECRET: z.string().min(1),
   JWT_REFRESH_SECRET: z.string().min(1),
   JWT_ACCESS_EXPIRES_IN: z.string().min(1).default('1h'),
   JWT_REFRESH_EXPIRES_IN: z.string().min(1).default('7d'),
+  JWT_RESET_EXPIRES_IN: z.string().min(1).default('10m'),
 
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.coerce.number().int().positive().default(587),
@@ -43,9 +45,12 @@ export const config = {
   mongo_uri: env.MONGO_URI,
 
   jwtSecret: env.JWT_SECRET,
+  jwtResetSecret: env.JWT_RESET_SECRET,
   jwtRefreshSecret: env.JWT_REFRESH_SECRET,
   jwtAccessExpiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
   jwtRefreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
+  jwtResetExpiresIn: env.JWT_RESET_EXPIRES_IN as SignOptions['expiresIn'],
+  
 
   mail: {
     host: env.SMTP_HOST,
