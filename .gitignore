@@ -1,20 +1,17 @@
 # Dependencies (Root, Server & Client)
 node_modules/
-server/node_modules/
-client/node_modules/
 
 # Build outputs
 dist/
 dist-ssr/
-server/dist/
-client/dist/
 client/.tanstack/
 
 # Environment files
 .env
+.env.*
+!.env.example
 .env.local
 *.local
-server/.env
 
 # Logs & Debug
 logs/

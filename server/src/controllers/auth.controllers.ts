@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '@/services/auth.service';
-import { config } from '@/utils/config';
+import { refreshTokenCookieOptions, baseCookieOptions } from '@/utils/cookie';
 import { AuthRequest } from '@/types/auto.type';
 import { logger } from '@/utils/logger';
 
@@ -10,12 +10,7 @@ export class AuthController {
         try {
             const { user, tokens } = await AuthService.register(req.body);
 
-            res.cookie('refreshToken', tokens.refreshToken, {
-                httpOnly: true,
-                secure: config.nodeEnv === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            res.cookie('refreshToken', tokens.refreshToken, refreshTokenCookieOptions);
             logger.info(`[AUTH] User registered successfully`);
 
             res.status(201).json({
@@ -40,12 +35,7 @@ export class AuthController {
             const { email, password } = req.body;
             const { user, tokens } = await AuthService.login(email, password);
 
-            res.cookie('refreshToken', tokens.refreshToken, {
-                httpOnly: true,
-                secure: config.nodeEnv === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            });
+            res.cookie('refreshToken', tokens.refreshToken, refreshTokenCookieOptions);
             logger.info(`[AUTH] User logged in successfully`);
 
             res.status(200).json({
@@ -75,7 +65,7 @@ export class AuthController {
         }
     }
 
-    
+
     static async verifyOtp(req: Request, res: Response, next: NextFunction) {
         try {
             const { email, code } = req.body;
@@ -126,11 +116,7 @@ export class AuthController {
             else
                 logger.warn(`[AUTH] Logout request missing userId or refreshToken`);
 
-            res.clearCookie('refreshToken', {
-                httpOnly: true,
-                secure: config.nodeEnv === 'production',
-                sameSite: 'strict',
-            });
+            res.clearCookie('refreshToken', baseCookieOptions);
 
             logger.info(`[AUTH] User logged out successfully`);
             res.status(200).json({ message: "User logged out successfully" });

@@ -4,15 +4,15 @@ import cookieParser from 'cookie-parser';
 import authRoutes from '@/routers/user.router';
 import postRoutes from '@/routers/post.router';
 import { errorHandler } from './middlewares/errorHandler';
+import { config } from './utils/config';
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-}));
+
+app.set('trust proxy', 1)
+app.use(cors({ origin: config.clientUrl, credentials: true }))
 
 
 app.use("/api/auth", authRoutes)
