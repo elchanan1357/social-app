@@ -10,6 +10,7 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 
   MONGO_URI: z.string().min(1).default('mongodb://localhost:27017/social_app'),
+  CLIENT_URL: z.string().min(1).default('http://localhost:5173'),
 
   JWT_SECRET: z.string().min(1),
   JWT_RESET_SECRET: z.string().min(1),
@@ -43,6 +44,7 @@ export const config = {
   port: env.PORT,
   logLevel: env.LOG_LEVEL,
   mongo_uri: env.MONGO_URI,
+  clientUrl: env.CLIENT_URL,
 
   jwtSecret: env.JWT_SECRET,
   jwtResetSecret: env.JWT_RESET_SECRET,
@@ -50,7 +52,7 @@ export const config = {
   jwtAccessExpiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
   jwtRefreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
   jwtResetExpiresIn: env.JWT_RESET_EXPIRES_IN as SignOptions['expiresIn'],
-  
+
 
   mail: {
     host: env.SMTP_HOST,
