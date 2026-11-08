@@ -31,7 +31,7 @@
     "express-rate-limit": "^8.7.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.3",
-    "nodemailer": "^10.3.1",
+    "resend": "^6.37.0",
     "winston": "^3.19.0",
     "zod": "^4.5.4"
   },
@@ -42,7 +42,6 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.2.0",
-    "@types/nodemailer": "^8.0.2",
     "@types/supertest": "^7.2.1",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
