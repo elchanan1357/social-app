@@ -19,10 +19,7 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().min(1).default('7d'),
   JWT_RESET_EXPIRES_IN: z.string().min(1).default('10m'),
 
-  SMTP_HOST: z.string().min(1),
-  SMTP_PORT: z.coerce.number().int().positive().default(587),
-  SMTP_USER: z.string().min(1),
-  SMTP_PASS: z.string().min(1),
+  BREVO_API_KEY: z.string().min(1),
   MAIL_FROM: z.string().min(1),
 
   OTP_EXPIRES_MINUTES: z.coerce.number().int().positive().default(10),
@@ -55,10 +52,7 @@ export const config = {
 
 
   mail: {
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASS,
+    apiKey: env.BREVO_API_KEY,
     from: env.MAIL_FROM,
   },
 
