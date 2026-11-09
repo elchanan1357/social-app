@@ -1,28 +1,25 @@
-import { Resend } from 'resend';
+import { BrevoClient } from '@getbrevo/brevo';
 import { config } from '@/utils/config';
 import { logger } from '@/utils/logger';
 
-const resend = new Resend(config.mail.apiKey);
 
-export async function sendOtpEmail(to: string, otp: string) {
+const brevo = new BrevoClient({
+  apiKey: config.mail.apiKey,
+});
+
+export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   try {
-    const { data, error } = await resend.emails.send({
-      from: config.mail.from, 
-      to,
+    await brevo.transactionalEmails.sendTransacEmail({
       subject: 'Your password reset code',
-      text: `Your verification code is: ${otp}. It expires in ${config.otpExpiresMinutes} minutes.`,
-      html: `<p>Your verification code is: <b>${otp}</b></p><p>It expires in ${config.otpExpiresMinutes} minutes.</p>`,
+      htmlContent: `<p>Your verification code is: <b>${otp}</b></p><p>It expires in ${config.otpExpiresMinutes} minutes.</p>`,
+      textContent: `Your verification code is: ${otp}. It expires in ${config.otpExpiresMinutes} minutes.`,
+      sender: { name: 'SocialApp', email: config.mail.from },
+      to: [{ email: to }],
     });
 
-    if (error) {
-      logger.error('Resend failed to send email:', error);
-      throw new Error(`Email sending failed: ${error.message}`);
-    }
-
-    logger.info(`OTP email sent successfully to ${to}, ID: ${data?.id}`);
-    return data;
-  } catch (err: any) {
-    logger.error('Error sending OTP email via Resend:', err.message || err);
-    throw err;
+    logger.info(`OTP email sent successfully via Brevo to ${to}`);
+  } catch (error: any) {
+    logger.error('Brevo API Error:', error.body || error.message || error);
+    throw new Error('Failed to send verification email');
   }
 }
