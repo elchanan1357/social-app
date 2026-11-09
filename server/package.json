@@ -11,7 +11,7 @@
   "type": "module",
   "main": "src/server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "run": "npx tsx",
     "start": "npx tsx src/server.ts",
     "dev": "npx nodemon --exec tsx src/server.ts",
@@ -46,6 +46,7 @@
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.9.10",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
