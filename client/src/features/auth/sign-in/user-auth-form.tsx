@@ -72,7 +72,7 @@ export function UserAuthForm({
         },
         error: (err) => {
           setIsLoading(false)
-          
+
           if (err.response?.status === 404) {
             navigate({ to: '/sign-up' })
             return 'Account not found. Redirecting to registration...'
@@ -100,6 +100,7 @@ export function UserAuthForm({
               <FormControl>
                 <Input
                   placeholder='name@example.com'
+                  autoComplete='username'
                   disabled={isLoading}
                   {...field}
                 />
