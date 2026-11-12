@@ -7,6 +7,7 @@ import { UserRepository } from "@/repo/user.repo";
 import { AppError } from "@/utils/appError";
 import crypto from 'crypto'
 import { sendOtpEmail } from './mail.service'
+import type { OAuthProfile } from '@/types/oauth.type'
 
 export class AuthService {
     private static SALT_ROUNDS = 10;
@@ -75,6 +76,53 @@ export class AuthService {
 
         await UserRepository.addRefreshToken(user._id.toString(), tokens.refreshToken);
         return { user, tokens };
+    }
+
+    static async socialLogin(profile: OAuthProfile) {
+        let user = await UserRepository.findByProviderId(profile.provider, profile.providerId);
+
+        if (!user) {
+            if (!profile.email)
+                throw new AppError('Your account did not provide an email address', 400);
+
+            const existing = await UserRepository.findByEmail(profile.email);
+            if (existing) {
+                if (!profile.emailVerified)
+                    throw new AppError(
+                        'An account with this email already exists. Please sign in with your password',
+                        409
+                    );
+                user = await UserRepository.linkProvider(
+                    existing._id.toString(),
+                    profile.provider,
+                    profile.providerId
+                );
+            } else {
+                user = await UserRepository.createSocialUser({
+                    firstName: profile.firstName,
+                    lastName: profile.lastName,
+                    email: profile.email,
+                    picture: profile.picture,
+                    provider: profile.provider,
+                    providerId: profile.providerId,
+                });
+            }
+        }
+
+        if (!user) throw new AppError('Social sign-in failed', 500);
+
+        const tokens = this.generateTokens({
+            userId: user._id.toString(),
+            role: user.role,
+        });
+        await UserRepository.addRefreshToken(user._id.toString(), tokens.refreshToken);
+        return { user, tokens };
+    }
+
+    static async getMe(userId: string) {
+        const user = await UserRepository.findById(userId);
+        if (!user) throw new AppError('User not found', 404);
+        return user;
     }
 
     static async forgotPassword(email: string) {
