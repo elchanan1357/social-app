@@ -61,6 +61,9 @@ export class AuthService {
         if (!user)
             throw new AppError('User not found', 400);
 
+        if (!user.passwordHash)
+            throw new AppError('This account uses Google or Facebook sign-in', 400);
+
         const isMatch = await this.comparePasswords(password, user.passwordHash);
         if (!isMatch)
             throw new AppError('Invalid email or password', 401);

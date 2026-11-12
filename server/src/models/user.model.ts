@@ -22,9 +22,16 @@ const userSchema = new Schema<UserModel>(
         },
         passwordHash: {
             type: String,
-            required: [true, 'Password is required'],
+            required: [
+                function (this: UserModel) {
+                    return !this.googleId && !this.facebookId;
+                },
+                'Password is required',
+            ],
             select: false,
         },
+        googleId: { type: String, unique: true, sparse: true },
+        facebookId: { type: String, unique: true, sparse: true },
         age: {
             type: Number,
             min: [16, 'Age must be at least 16'],
