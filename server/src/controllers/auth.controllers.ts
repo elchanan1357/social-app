@@ -3,6 +3,25 @@ import { AuthService } from '@/services/auth.service';
 import { refreshTokenCookieOptions, baseCookieOptions } from '@/utils/cookie';
 import { AuthRequest } from '@/types/auto.type';
 import { logger } from '@/utils/logger';
+import { OAuthService } from '@/services/oauth.service';
+import { AppError } from '@/utils/appError';
+import type { OAuthProvider } from '@/types/oauth.type';
+import { config } from '@/utils/config';
+
+const STATE_COOKIE = 'oauth_state';
+
+const stateCookieOptions = {
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'lax' as const,
+    path: '/api/auth',
+};
+
+const clientRedirect = (res: Response, error?: string) => {
+    const url = new URL('/oauth-callback', config.clientUrl);
+    if (error) url.searchParams.set('error', error);
+    res.redirect(url.toString());
+};
 
 export class AuthController {
     static async register(req: Request, res: Response, next: NextFunction) {
@@ -48,6 +67,72 @@ export class AuthController {
                     role: user.role,
                 },
                 accessToken: tokens.accessToken,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+    static oauthStart(provider: OAuthProvider) {
+        return (_req: Request, res: Response) => {
+            try {
+                const state = OAuthService.createState();
+                res.cookie(STATE_COOKIE, state, { ...stateCookieOptions, maxAge: 10 * 60 * 1000 });
+                res.redirect(OAuthService.getAuthUrl(provider, state));
+            } catch (error) {
+                logger.error(`[AUTH] ${provider} sign-in could not start: ${error}`);
+                clientRedirect(
+                    res,
+                    error instanceof AppError ? error.message : 'Sign-in failed. Please try again'
+                );
+            }
+        };
+    }
+
+    static oauthCallback(provider: OAuthProvider) {
+        return async (req: Request, res: Response) => {
+            const { code, state, error } = req.query as Record<string, string | undefined>;
+            const savedState = req.cookies?.[STATE_COOKIE];
+            res.clearCookie(STATE_COOKIE, stateCookieOptions);
+
+            if (error) return clientRedirect(res, 'Sign-in was cancelled');
+            if (!code || !state || !savedState || state !== savedState) {
+                return clientRedirect(res, 'Invalid sign-in request. Please try again');
+            }
+
+            try {
+                const profile = await OAuthService.getProfile(provider, code);
+                const { tokens } = await AuthService.socialLogin(profile);
+
+                res.cookie('refreshToken', tokens.refreshToken, {
+                    ...refreshCookieOptions,
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
+                });
+                logger.info(`[AUTH] User signed in with ${provider}`);
+                clientRedirect(res);
+            } catch (err) {
+                logger.error(`[AUTH] ${provider} sign-in failed: ${err}`);
+                clientRedirect(
+                    res,
+                    err instanceof AppError ? err.message : 'Sign-in failed. Please try again'
+                );
+            }
+        };
+    }
+
+    static async me(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const user = await AuthService.getMe(req.user!.userId);
+            res.status(200).json({
+                user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    picture: user.picture,
+                },
             });
         } catch (error) {
             next(error);

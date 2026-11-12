@@ -10,11 +10,13 @@ import crypto from 'crypto';
 
 vi.mock('@/repo/user.repo');
 vi.mock('bcryptjs');
-vi.mock('@/services/mail.service');
+vi.mock('@/services/mail.service'); 
 vi.mock('@/middlewares/rateLimit.middleware', () => ({
     forgotPasswordLimiter: (_req: any, _res: any, next: any) => next(),
     verifyOtpLimiter: (_req: any, _res: any, next: any) => next(),
+    oauthLimiter: (_req: any, _res: any, next: any) => next(), 
 }));
+
 
 describe('Auth End-to-End Flow Tests', () => {
     beforeEach(() => {
