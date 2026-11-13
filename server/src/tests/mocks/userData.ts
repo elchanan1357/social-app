@@ -1,5 +1,5 @@
-import { TokenPayload, } from '@/types/auto.type';
-import { UserRole } from '@/types/model.type';
+import { TokenPayload, } from '../../types/auto.type';
+import { UserRole } from '../../types/model.type';
 import { vi } from 'vitest';
 
 export const mockUser = {

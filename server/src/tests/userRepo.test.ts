@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { UserRepository } from '@/repo/user.repo';
-import { User } from '@/models/user.model';
+import { UserRepository } from '../repo/user.repo';
+import { User } from '../models/user.model';
 import { mockUser } from './mocks/userData';
 
-vi.mock('@/models/user.model');
+vi.mock('../models/user.model');
 
 describe('UserRepository Unit Tests (Vitest)', () => {
   beforeEach(() => {

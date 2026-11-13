@@ -1,15 +1,15 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { AuthService } from '@/services/auth.service';
-import { UserRepository } from '@/repo/user.repo';
+import { AuthService } from '../services/auth.service';
+import { UserRepository } from '../repo/user.repo';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { mockUser, mockRegisterDto } from './mocks/userData';
-import { sendOtpEmail } from '@/services/mail.service';
+import { sendOtpEmail } from '../services/mail.service';
 import crypto from 'crypto';
-import { config } from '@/utils/config';
+import { config } from '../utils/config';
 
-vi.mock('@/repo/user.repo');
-vi.mock('@/services/mail.service');
+vi.mock('../repo/user.repo');
+vi.mock('../services/mail.service');
 vi.mock('bcryptjs');
 
 describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
@@ -54,6 +54,18 @@ describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
 
       await expect(AuthService.login('test@example.com', 'WrongPassword')).rejects.toThrow(
         'Invalid email or password'
+      );
+    });
+
+    test('should reject password login for an account without a password', async () => {
+      vi.mocked(UserRepository.findByEmailWithPassword).mockResolvedValue({
+        ...mockUser,
+        _id: { toString: () => mockUser._id },
+        passwordHash: undefined,
+      } as any);
+
+      await expect(AuthService.login(mockUser.email, 'Password123!')).rejects.toThrow(
+        'Google or Facebook'
       );
     });
   });
@@ -293,6 +305,74 @@ describe('AuthService Edge Cases Unit Tests (Vitest)', () => {
       expect(UserRepository.updatePasswordAndClearSessions).toHaveBeenCalledWith(
         mockUser._id,
         'new_hash'
+      );
+    });
+  });
+
+  describe('socialLogin', () => {
+    const profile = (overrides = {}) => ({
+      provider: 'google' as const,
+      providerId: 'google-123',
+      email: 'social@example.com',
+      emailVerified: true,
+      firstName: 'Social',
+      lastName: 'User',
+      picture: '',
+      ...overrides,
+    });
+    const socialUser = { ...mockUser, _id: { toString: () => mockUser._id } } as any;
+
+    test('should log in an existing user found by provider id', async () => {
+      vi.mocked(UserRepository.findByProviderId).mockResolvedValue(socialUser);
+
+      const result = await AuthService.socialLogin(profile());
+
+      expect(result.tokens).toHaveProperty('accessToken');
+      expect(UserRepository.createSocialUser).not.toHaveBeenCalled();
+      expect(UserRepository.addRefreshToken).toHaveBeenCalled();
+    });
+
+    test('should create a new user when no account exists', async () => {
+      vi.mocked(UserRepository.findByProviderId).mockResolvedValue(null);
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue(null);
+      vi.mocked(UserRepository.createSocialUser).mockResolvedValue(socialUser);
+
+      await AuthService.socialLogin(profile());
+
+      expect(UserRepository.createSocialUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'social@example.com',
+          provider: 'google',
+          providerId: 'google-123',
+        })
+      );
+    });
+
+    test('should link the provider to an existing account when the email is verified', async () => {
+      vi.mocked(UserRepository.findByProviderId).mockResolvedValue(null);
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue(socialUser);
+      vi.mocked(UserRepository.linkProvider).mockResolvedValue(socialUser);
+
+      await AuthService.socialLogin(profile());
+
+      expect(UserRepository.linkProvider).toHaveBeenCalledWith(mockUser._id, 'google', 'google-123');
+    });
+
+    test('should refuse to link when the provider email is not verified', async () => {
+      vi.mocked(UserRepository.findByProviderId).mockResolvedValue(null);
+      vi.mocked(UserRepository.findByEmail).mockResolvedValue(socialUser);
+
+      await expect(
+        AuthService.socialLogin(profile({ provider: 'facebook', providerId: 'fb-1', emailVerified: false }))
+      ).rejects.toThrow('already exists');
+      expect(UserRepository.linkProvider).not.toHaveBeenCalled();
+    });
+
+    test('should throw if the provider gives no email', async () => {
+      vi.mocked(UserRepository.findByProviderId).mockResolvedValue(null);
+
+      await expect(AuthService.socialLogin(profile({ email: null }))).rejects.toThrow(
+        'did not provide an email'
       );
     });
   });

@@ -1,22 +1,54 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '@/app';
-import { UserRepository } from '@/repo/user.repo';
+import app from '../app';
+import { UserRepository } from '../repo/user.repo';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { config } from '@/utils/config';
+import { config } from '../utils/config';
 import { mockUser, mockRegisterDto } from './mocks/userData';
 import crypto from 'crypto';
 
-vi.mock('@/repo/user.repo');
+vi.mock('../repo/user.repo');
 vi.mock('bcryptjs');
-vi.mock('@/services/mail.service'); 
-vi.mock('@/middlewares/rateLimit.middleware', () => ({
+vi.mock('../services/mail.service');
+vi.mock('../middlewares/rateLimit.middleware', () => ({
     forgotPasswordLimiter: (_req: any, _res: any, next: any) => next(),
     verifyOtpLimiter: (_req: any, _res: any, next: any) => next(),
-    oauthLimiter: (_req: any, _res: any, next: any) => next(), 
+    oauthLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
+describe('GET /api/auth/google/callback', () => {
+    test('should redirect to the client with an error when the state does not match', async () => {
+        const res = await request(app).get('/api/auth/google/callback?code=abc&state=xyz');
+
+        expect(res.status).toBe(302);
+        expect(res.headers.location).toContain('/oauth-callback');
+        expect(res.headers.location).toContain('error=');
+    });
+});
+
+describe('GET /api/auth/me', () => {
+    test('should return 401 without an access token', async () => {
+        const res = await request(app).get('/api/auth/me');
+
+        expect(res.status).toBe(401);
+    });
+
+    test('should return the current user for a valid access token', async () => {
+        const accessToken = jwt.sign({ userId: mockUser._id, role: 'user' }, config.jwtSecret);
+        vi.mocked(UserRepository.findById).mockResolvedValue({
+            ...mockUser,
+            _id: { toString: () => mockUser._id },
+        } as any);
+
+        const res = await request(app)
+            .get('/api/auth/me')
+            .set('Authorization', `Bearer ${accessToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.user).toHaveProperty('email', mockUser.email);
+    });
+});
 
 describe('Auth End-to-End Flow Tests', () => {
     beforeEach(() => {
