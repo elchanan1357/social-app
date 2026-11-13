@@ -106,7 +106,7 @@ export class AuthController {
                 const { tokens } = await AuthService.socialLogin(profile);
 
                 res.cookie('refreshToken', tokens.refreshToken, {
-                    ...refreshCookieOptions,
+                    ...refreshTokenCookieOptions,
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
                 logger.info(`[AUTH] User signed in with ${provider}`);
