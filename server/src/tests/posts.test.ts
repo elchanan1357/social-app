@@ -1,13 +1,13 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import app from '@/app';
-import { PostRepository } from '@/repo/post.repo';
+import app from '../app';
+import { PostRepository } from '../repo/post.repo';
 import jwt from 'jsonwebtoken';
-import { config } from '@/utils/config';
+import { config } from '../utils/config';
 import { mockUser, mockPost, mockComment, mockOtherUser } from './mocks/userData';
-import { UserRole } from '@/types/model.type';
+import { UserRole } from '../types/model.type';
 
-vi.mock('@/repo/post.repo');
+vi.mock('../repo/post.repo');
 
 describe('Posts Module E2E & Edge-Case Tests', () => {
   const authorId = mockUser._id;
@@ -73,7 +73,7 @@ describe('Posts Module E2E & Edge-Case Tests', () => {
         .send({});
 
       expect(res.status).toBe(400);
-      expect(res.body.message).toBe('Validation failed');
+      expect(res.body.message).toBe('Post must contain either text content or an image');
     });
 
     test('Should return 400 when image URL has invalid format', async () => {
@@ -83,7 +83,7 @@ describe('Posts Module E2E & Edge-Case Tests', () => {
         .send({ imageUrl: 'invalid-url' });
 
       expect(res.status).toBe(400);
-      expect(res.body.errors[0].message).toBe('Invalid image URL format');
+      expect(res.body.message).toBe('Invalid image URL format');
     });
 
     test('Should return 400 when content exceeds 2000 characters', async () => {

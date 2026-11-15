@@ -1,5 +1,10 @@
 import { api } from '@/lib/api'
 
+export type OAuthProvider = 'google' | 'facebook'
+
+export const getOAuthUrl = (provider: OAuthProvider) =>
+  `${api.defaults.baseURL}/auth/${provider}`
+
 export interface LoginPayload {
   email: string
   password: string
@@ -21,4 +26,7 @@ export const authApi = {
     api.post<{ status: string; resetToken: string }>('/auth/verify-otp', data),
   resetPassword: (data: { resetToken: string; newPassword: string }) =>
     api.post('/auth/reset-password', data),
+  refresh: () => api.post<{ accessToken: string }>('/auth/refresh'),
+  me: (accessToken: string) =>
+    api.get('/auth/me', { headers: { Authorization: `Bearer ${accessToken}` } }),
 }

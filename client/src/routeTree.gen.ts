@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as authOauthCallbackRouteImport } from './routes/(auth)/oauth-callback'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   id: '/(auth)/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authOauthCallbackRoute = authOauthCallbackRouteImport.update({
+  id: '/(auth)/oauth-callback',
+  path: '/oauth-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authOtpRoute = authOtpRouteImport.update({
@@ -80,6 +86,7 @@ const errors503Route = errors503RouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof authForgotPasswordRoute
+  '/oauth-callback': typeof authOauthCallbackRoute
   '/otp': typeof authOtpRoute
   '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof authForgotPasswordRoute
+  '/oauth-callback': typeof authOauthCallbackRoute
   '/otp': typeof authOtpRoute
   '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
+  '/(auth)/oauth-callback': typeof authOauthCallbackRoute
   '/(auth)/otp': typeof authOtpRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgot-password'
+    | '/oauth-callback'
     | '/otp'
     | '/reset-password'
     | '/sign-in'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forgot-password'
+    | '/oauth-callback'
     | '/otp'
     | '/reset-password'
     | '/sign-in'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/(auth)/forgot-password'
+    | '/(auth)/oauth-callback'
     | '/(auth)/otp'
     | '/(auth)/reset-password'
     | '/(auth)/sign-in'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
+  authOauthCallbackRoute: typeof authOauthCallbackRoute
   authOtpRoute: typeof authOtpRoute
   authResetPasswordRoute: typeof authResetPasswordRoute
   authSignInRoute: typeof authSignInRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof authForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/oauth-callback': {
+      id: '/(auth)/oauth-callback'
+      path: '/oauth-callback'
+      fullPath: '/oauth-callback'
+      preLoaderRoute: typeof authOauthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/otp': {
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
+  authOauthCallbackRoute: authOauthCallbackRoute,
   authOtpRoute: authOtpRoute,
   authResetPasswordRoute: authResetPasswordRoute,
   authSignInRoute: authSignInRoute,

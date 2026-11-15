@@ -15,3 +15,11 @@ export const verifyOtpLimiter = rateLimit({
     legacyHeaders: false,
     message: { message: 'Too many requests, please try again later' },
 });
+
+export const oauthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many requests, please try again later' },
+});

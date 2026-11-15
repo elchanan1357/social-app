@@ -1,4 +1,5 @@
 import { UserModel } from "@/types/model.type";
+import { OAuthProvider } from "@/types/oauth.type";
 import { User } from "@/models/user.model";
 
 export class UserRepository {
@@ -12,6 +13,38 @@ export class UserRepository {
 
     static async findByEmailWithPassword(email: string) {
         return User.findOne({ email }).select("+passwordHash");
+    }
+    static async findByProviderId(provider: OAuthProvider, providerId: string) {
+        return provider === 'google'
+            ? User.findOne({ googleId: providerId })
+            : User.findOne({ facebookId: providerId });
+    }
+
+    static async linkProvider(userId: string, provider: OAuthProvider, providerId: string) {
+        const update = provider === 'google' ? { googleId: providerId } : { facebookId: providerId };
+        return User.findByIdAndUpdate(userId, { $set: update }, { new: true });
+    }
+
+    static async createSocialUser(data: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        picture: string;
+        provider: OAuthProvider;
+        providerId: string;
+    }) {
+        const user = new User({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            picture: data.picture,
+            ...(data.provider === 'google'
+                ? { googleId: data.providerId }
+                : { facebookId: data.providerId }),
+            refreshTokens: [],
+        });
+        await user.save();
+        return user;
     }
 
     static async create(userData: Partial<UserModel> & { passwordHash: string }) {

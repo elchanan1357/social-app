@@ -19,6 +19,16 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().min(1).default('7d'),
   JWT_RESET_EXPIRES_IN: z.string().min(1).default('10m'),
 
+  SERVER_URL: z
+    .string()
+    .url()
+    .default('http://localhost:3000')
+    .transform((value) => value.replace(/\/+$/, '')),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  FACEBOOK_APP_ID: z.string().optional(),
+  FACEBOOK_APP_SECRET: z.string().optional(),
+
   BREVO_API_KEY: z.string().min(1),
   MAIL_FROM: z.string().min(1),
 
@@ -49,6 +59,12 @@ export const config = {
   jwtAccessExpiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
   jwtRefreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn'],
   jwtResetExpiresIn: env.JWT_RESET_EXPIRES_IN as SignOptions['expiresIn'],
+
+  oauth: {
+    serverUrl: env.SERVER_URL,
+    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },
+    facebook: { appId: env.FACEBOOK_APP_ID, appSecret: env.FACEBOOK_APP_SECRET },
+  },
 
 
   mail: {

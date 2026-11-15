@@ -9,7 +9,9 @@ export interface UserModel extends Document {
   firstName: string;
   lastName: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
+  googleId?: string;
+  facebookId?: string;
   age?: number;
   picture?: string;
   bio?: string;
