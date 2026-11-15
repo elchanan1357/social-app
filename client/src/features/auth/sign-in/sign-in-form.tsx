@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
-import { IconGoogle, IconFacebook } from '@/assets/brand-icons'
+import { SocialAuthButtons } from '@/components/social-auth-buttons'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -152,24 +152,7 @@ export function UserAuthForm({
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Button
-            variant='outline'
-            type='button'
-            disabled={isLoading}
-            className='w-full'
-          >
-            <IconFacebook className='h-4 w-4 mr-2' /> Facebook
-          </Button>
-          <Button
-            variant='outline'
-            type='button'
-            disabled={isLoading}
-            className='w-full'
-          >
-            <IconGoogle className='h-4 w-4 mr-2' /> Google
-          </Button>
-        </div>
+        <SocialAuthButtons disabled={isLoading} />
       </form>
     </Form>
   )

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
-import { IconGoogle, IconFacebook } from '@/assets/brand-icons'
+import { SocialAuthButtons } from '@/components/social-auth-buttons'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
@@ -171,24 +171,7 @@ export function SignUpForm({
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
-            disabled={isLoading}
-          >
-            <IconFacebook className='h-4 w-4' /> Facebook
-          </Button>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
-            disabled={isLoading}
-          >
-            <IconGoogle className='h-4 w-4' /> Google
-          </Button>
-        </div>
+        <SocialAuthButtons disabled={isLoading} />
       </form>
     </Form>
   )
