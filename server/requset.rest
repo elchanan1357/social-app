@@ -20,9 +20,15 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "israel@example.com",
+  "email": "socialapp055369@gmail.com",
   "password": "Password123!"
 }
+
+###
+
+### Get Current User (Me)
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
 
 ###
 
@@ -40,7 +46,7 @@ Content-Type: application/json
 ###
 
 ### Forgot password
-#  @name forgotPassword
+# @name forgotPassword
 POST {{baseUrl}}/forgot-password
 Content-Type: application/json
 
@@ -80,3 +86,23 @@ Content-Type: application/json
   "resetToken": "{{verify.response.body.resetToken}}",
   "newPassword": "NewPassword123"
 }
+
+###
+
+### OAuth Start - Google 
+GET {{baseUrl}}/google
+
+###
+
+### OAuth Start - Facebook
+GET {{baseUrl}}/facebook
+
+###
+
+### OAuth Callback - Google 
+GET {{baseUrl}}/google/callback?code=mock_code&state=invalid_state
+
+###
+
+### OAuth Callback - Facebook
+GET {{baseUrl}}/facebook/callback?code=mock_code&state=invalid_state
